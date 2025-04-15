@@ -1,0 +1,618 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Gaozixian | Gaozixian</title><meta name="author" content="高自贤"><meta name="copyright" content="高自贤"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="CBAM-LSTM: 端到端自动驾驶的时空注意力网络              :root {             --primary: #6366f1;             --primary-light: #818cf8;             --secondary: #10b981;             --dark: #1e293b;">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Gaozixian">
+<meta property="og:url" content="https://gaozixian.github.io/LSTM+CCBAM.html">
+<meta property="og:site_name" content="Gaozixian">
+<meta property="og:description" content="CBAM-LSTM: 端到端自动驾驶的时空注意力网络              :root {             --primary: #6366f1;             --primary-light: #818cf8;             --secondary: #10b981;             --dark: #1e293b;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaozixian.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-04-15T14:15:19.704Z">
+<meta property="article:modified_time" content="2025-04-10T14:59:14.492Z">
+<meta property="article:author" content="高自贤">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaozixian.github.io/img/butterfly-icon.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://gaozixian.github.io/LSTM+CCBAM.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Gaozixian',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Gaozixian</span></a></span><div id="menus"></div></nav><div id="page-site-info"><h1 id="site-title"></h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBAM-LSTM: 端到端自动驾驶的时空注意力网络</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.15);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 3rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            padding: 4rem 0 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border: var(--border);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 0.5rem;
+            height: 1.5rem;
+            background: linear-gradient(var(--primary), var(--primary-light));
+            border-radius: 0.25rem;
+            margin-right: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin: 1.5rem 0 1rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        h3::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .highlight {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .highlight-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .highlight-title svg {
+            margin-right: 0.5rem;
+        }
+
+        .code-block {
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            font-family: 'SF Mono', 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .keyword {
+            color: #f472b6;
+        }
+
+        .function {
+            color: #60a5fa;
+        }
+
+        .string {
+            color: #34d399;
+        }
+
+        .comment {
+            color: #94a3b8;
+        }
+
+        .tag {
+            color: #7dd3fc;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 0 1.5rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CBAM-LSTM: 用于端到端自动驾驶的混合时空注意力网络</h1>
+            <p class="subtitle">结合时序建模(LSTM)和空间-通道注意力(CBAM)提升自动驾驶模型的感知与决策能力</p>
+        </header>
+
+        <div class="card">
+            <h2>摘要与核心创新</h2>
+            <div class="highlight">
+                <div class="highlight-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    研究动机
+                </div>
+                <p>端到端自动驾驶需要同时处理时序动态(如车辆轨迹)和空间特征(如道路结构)。现有方法中，CNN缺乏时序建模能力，而LSTM忽视了空间注意力机制。</p>
+            </div>
+
+            <div class="highlight">
+                <div class="highlight-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 12L12 8L8 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    核心创新
+                </div>
+                <ul>
+                    <li><strong>双分支融合架构</strong>：CBAM(空间+通道注意力) + LSTM(时序建模)</li>
+                    <li><strong>轻量化设计</strong>：CBAM嵌入CNN骨干网络(如ResNet-18)，减少计算开销</li>
+                    <li><strong>时空注意力可视化</strong>：展示模型在复杂场景下的关注区域</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>论文主体框架</h2>
+            
+            <h3>1. Introduction</h3>
+            <ul>
+                <li>背景与挑战：空间特征丢失(如交通标志)、时序决策不连贯(如转弯时的速度调整)</li>
+                <li>现有方法局限：CNN缺乏时序建模，LSTM忽视空间注意力</li>
+                <li>创新点：CBAM-LSTM的混合架构与轻量化设计</li>
+            </ul>
+            
+            <h3>2. Related Work</h3>
+            <div class="grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚗</div>
+                    <h4>端到端自动驾驶</h4>
+                    <p>NVIDIA的PilotNet、ChauffeurNet等经典架构分析</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👁️</div>
+                    <h4>注意力机制</h4>
+                    <p>CBAM、SE-Net在计算机视觉中的应用</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⏱️</div>
+                    <h4>时序模型</h4>
+                    <p>LSTM、Transformer在驾驶决策中的使用</p>
+                </div>
+            </div>
+            
+            <h3>3. Methodology</h3>
+            <p><strong>整体架构图</strong>应包含以下模块：</p>
+            <ul>
+                <li><strong>输入</strong>：多帧图像(时序) + 传感器数据(可选)</li>
+                <li><strong>CBAM-CNN分支</strong>：提取空间特征并加权重要区域</li>
+                <li><strong>LSTM分支</strong>：编码历史动作和当前特征，输出控制指令</li>
+                <li><strong>融合策略</strong>：时空特征拼接或交叉注意力</li>
+            </ul>
+            
+            <div class="code-block">
+                <span class="keyword">class</span> <span class="function">CBAM_LSTM</span>(nn.Module):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">self</span>.cnn = ResNet18(with_cbam=<span class="keyword">True</span>)  <span class="comment"># 插入CBAM的ResNet</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">self</span>.lstm = nn.LSTM(input_size=cnn_feat_dim + state_dim, hidden_size=<span class="number">128</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">self</span>.head = nn.Linear(<span class="number">128</span>, <span class="number">3</span>)  <span class="comment"># 输出：方向盘、油门、刹车</span><br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">forward</span>(<span class="keyword">self</span>, x_frames, x_states):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># x_frames: [T, C, H, W], x_states: [T, state_dim]</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spatial_feats = [<span class="keyword">self</span>.cnn(frame) <span class="keyword">for</span> frame <span class="keyword">in</span> x_frames]  <span class="comment"># CBAM加权</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lstm_input = torch.cat([spatial_feats, x_states], dim=-<span class="number">1</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;controls, _ = <span class="keyword">self</span>.lstm(lstm_input)  <span class="comment"># 时序建模</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="keyword">self</span>.head(controls[-<span class="number">1</span>])  <span class="comment"># 最后一步预测</span>
+            </div>
+            
+            <h3>4. Experiments</h3>
+            <ul>
+                <li><strong>数据集</strong>：CARLA(仿真)、UDACITY(真实数据)</li>
+                <li><strong>对比模型</strong>：Pure CNN、Pure LSTM、CILRS等</li>
+                <li><strong>评估指标</strong>：控制指令误差(MAE)、安全性(碰撞率)、泛化性</li>
+                <li><strong>消融实验</strong>：CBAM的作用、时序长度对LSTM性能的影响</li>
+            </ul>
+            
+            <h3>5. Conclusion & Future Work</h3>
+            <ul>
+                <li>总结：CBAM-LSTM在复杂场景(如雨天、夜间)的优势</li>
+                <li>展望：引入多模态(激光雷达)、在线学习机制</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>关键创新点设计</h2>
+            <div class="grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h4>时空注意力融合</h4>
+                    <p>CBAM的空间权重与LSTM的时序权重联合可视化，展示模型在转弯时对道路边缘的关注</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>数据效率</h4>
+                    <p>证明在小样本下(如1小时驾驶数据)仍能稳定训练</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h4>可解释性</h4>
+                    <p>用Grad-CAM展示CBAM的关注区域是否与人类驾驶员一致</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>实验设计工具推荐</h2>
+            <div class="grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h4>仿真平台</h4>
+                    <p>CARLA - 支持复杂天气和交通流的高保真仿真</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💻</div>
+                    <h4>代码框架</h4>
+                    <p>PyTorch Lightning - 快速实验迭代与模块化设计</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h4>可视化工具</h4>
+                    <p>TensorBoard日志 + OpenCV实时渲染注意力热图</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>下一步行动建议</h2>
+            <ol>
+                <li><strong>确定数据集</strong>：优先使用CARLA(可控性强，适合方法验证)</li>
+                <li><strong>复现基线</strong>：先实现Pure CNN和LSTM，再逐步加入CBAM</li>
+                <li><strong>消融实验设计</strong>：明确对比"CBAM vs. 无注意力"、"LSTM vs. GRU"</li>
+                <li><strong>可视化方案</strong>：设计直观的注意力热图与驾驶决策关联展示</li>
+            </ol>
+            
+            <div class="highlight" style="margin-top: 2rem;">
+                <div class="highlight-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    论文黄金法则
+                </div>
+                <p><strong>创新点 = 问题定义 × 方法简洁性 × 实验充分性</strong> — 你的研究方向很有潜力，加油！ 🚗💨</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>网页由问小白生成，仅供参考</p>
+            <p>最后更新时间为2025-04-10，星期四</p>
+            <p>wenxiaobai.com</p>
+        </div>
+    </div>
+
+    <script>
+        // 卡片滚动动画
+        const cards = document.querySelectorAll('.card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        cards.forEach((card, index) => {
+            // 设置交错动画延迟
+            card.style.transitionDelay = `${index * 0.1}s`;
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">高自贤</div><div class="author-info-description">分享各种事务</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/15/post/" title="LSTM+CBAM+Attention">LSTM+CBAM+Attention</a><time datetime="2025-04-15T13:40:22.000Z" title="发表于 2025-04-15 21:40:22">2025-04-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/10/projects/" title="只是一个测试案例">只是一个测试案例</a><time datetime="2025-04-09T16:00:00.000Z" title="发表于 2025-04-10 00:00:00">2025-04-10</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BD%95/" style="font-size: 1.1em; color: #999">个人记录</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/04/">
+            <span class="card-archive-list-date">
+              四月 2025
+            </span>
+            <span class="card-archive-list-count">2</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">2</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-04-15T14:15:29.048Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By 高自贤</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
